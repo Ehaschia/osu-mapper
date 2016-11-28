@@ -1,0 +1,2 @@
+# osu-mapper
+osu!mapper
