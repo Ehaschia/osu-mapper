@@ -73,6 +73,8 @@ if __name__ == '__main__':
     while line:
         to_read_url.append(line[:-1])
         line = tmp_file.readline()
+        if re.search("=====", line):
+            line = tmp_file.read()
     for i in range(0, len(to_read_url)):
         real_url = get_real_url(to_read_url, i)
         print(real_url)
