@@ -1,11 +1,11 @@
-import requests
-from bs4 import BeautifulSoup
-from cookielib import LWPCookieJar
 import re
-import os
 import time
+
+import requests
+
 '''
 @author Ehaschia
+29/11/2016
 '''
 
 # load url
@@ -16,20 +16,6 @@ def load_url(url, url_file):
         # print(line)
         line = url_file.readline()
     return url
-
-
-def load_page(url, header, cookie_file):
-    ses = requests.session()
-    ses.headers.update(header)
-    ses.cookies = LWPCookieJar(cookie_file)
-    for i in url:
-        r = ses.get(i)
-        ses.cookies.save()
-        print r.url, r.history
-        soup = BeautifulSoup(r.content)
-        print(soup.prettify())
-
-
 if __name__ == '__main__':
     COOKIE_FILE = 'package_cookie.txt'
     url_file = open('stored_url.txt', 'r')
@@ -43,9 +29,7 @@ if __name__ == '__main__':
         'Accept-Encoding': 'gzip',
         'Accept-Language': 'zh-CN,zh;q=0.8,ja;q=0.6,en;q=0.4,de;q=0.2',
     }
-    #url = ['http://www.mediafire.com/?2gfnyzx4z6xyjuz']
     load_url(url, url_file)
-    #load_page(url, headers, COOKIE_FILE)
     for i in url:
         r = requests.get(i)
         match_line = re.findall('kNO.*";', r.content)[0]
