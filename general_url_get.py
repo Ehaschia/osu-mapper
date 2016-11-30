@@ -3,17 +3,6 @@ import re
 '''
 @author Ehaschia
 '''
-
-# def download_file(url):
-#     local_filename = url.split('/')[-1]
-#     # NOTE the stream=True parameter
-#     r = requests.get(url, stream=True)
-#     with open(local_filename, 'wb') as f:
-#         for chunk in r.iter_content(chunk_size=1024):
-#             if chunk:  # filter out keep-alive new chunks
-#                 f.write(chunk)
-#                 f.flush()
-#     return local_filename
 import sys
 import time
 import urllib
@@ -30,6 +19,8 @@ def reporthook(count, block_size, total_size):
     percent = int(count * block_size * 100 / total_size)
     sys.stdout.write("\r...%d%%, %d MB, %d KB/s, %d seconds passed" %
                      (percent, progress_size / (1024 * 1024), speed, duration))
+    if percent < 90 and duration > 5 and speed < 50:
+        raise ValueError
     sys.stdout.flush()
 
 
@@ -73,10 +64,17 @@ if __name__ == '__main__':
     while line:
         to_read_url.append(line[:-1])
         line = tmp_file.readline()
-        if re.search("=====", line):
+        if re.search("------", line):
             line = tmp_file.read()
-    for i in range(0, len(to_read_url)):
-        real_url = get_real_url(to_read_url, i)
-        print(real_url)
-        local_filename = real_url.split('/')[-1]
-        save(real_url, local_filename)
+    for i in range(26, len(to_read_url)):
+        try:
+            real_url = get_real_url(to_read_url, i)
+            print
+            print(real_url)
+            local_filename = real_url.split('/')[-1]
+            save(real_url, local_filename)
+        except:
+            err_file = open('error_url.txt','a')
+            err_file.write(to_read_url[i])
+            err_file.write("\n")
+            err_file.close()
