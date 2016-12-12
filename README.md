@@ -3,7 +3,7 @@ osu!mapper
 
 ## TODO
 
-### osu Format File
+### osu Format File [Liwen]
 - Slider end time
 - Slider points((X, Y) in the path)
 - v6 ~ v14(need to generalize, output format: v14)
@@ -11,12 +11,12 @@ osu!mapper
 - Lines under editor
 
 
-### Model
+### Model [Jun]
 - Space modeling
 - Model of slider(length should be legal)
 
 
-### Music
+### Music [Jiong]
 - Basic concepts
 - Process(how?)
 - Music model(for machine learning)
