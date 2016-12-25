@@ -23,4 +23,13 @@ Use RNN-like model. State h_0 = some hyper-parameters in osu file and features o
 ### Music [Jiong]
 - Basic concepts
 - Process(how?)
+  - Feature: MFCC ([Tutorial][MFCC-tutorial])
+    - A [survey](http://ieeexplore.ieee.org/document/5664796/)
+  - Relative Package:
+    - [python speech features](https://github.com/jameslyons/python_speech_features)
+    - [pydub](https://github.com/jiaaro/pydub)
 - Music model(for machine learning)
+
+
+
+[MFCC-tutorial]: http://www.practicalcryptography.com/miscellaneous/machine-learning/guide-mel-frequency-cepstral-coefficients-mfccs/
