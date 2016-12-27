@@ -3,14 +3,13 @@ import re
 
 
 class HitObjects:
-    offset = 0
-    x = 0
-    y = 0
-    obj_type = 1
-    hit_sound = 0
-
     def __init__(self):
-        pass
+        self.offset = 0
+        self.x = 0
+        self.y = 0
+        self.obj_type = 1
+        self.hit_sound = 0
+
 
     def get_offset(self):
         return self.offset
@@ -27,17 +26,12 @@ class Circle(HitObjects):
 
 
 class Slider(HitObjects):
-    slider_type = 'L'
-    origin_trace = []
-    end_x = 0
-    end_y = 0
-    repeat = 1
-    slider_length = 0.0
-    end_hitsound = 0
-
     def __init__(self, s):
+        if s.find('\n') != -1:
+            s = s[:-1]
         HitObjects.__init__(self)
         str_split = s.split('|')
+        self.origin_trace = []
         for i in range(0, len(str_split)):
             # load the basic information of slider
             if i == 0:
@@ -51,7 +45,6 @@ class Slider(HitObjects):
                 self.hit_sound = int(main_slider[4])
                 self.slider_type = str(main_slider[5])
             else:
-                # just for v 14
                 curve_point = re.split(':|,', str_split[i])
                 if len(curve_point) == 2:
                     # is a curve point
@@ -63,6 +56,13 @@ class Slider(HitObjects):
                     self.repeat = int(curve_point[2])
                     self.slider_length = float(curve_point[3])
                     self.end_hitsound = int(curve_point[4])
+                elif len(curve_point) == 4:
+                    # in version 12 or small than 12 there are 4 elements in the end part
+                    self.end_x = int(curve_point[0])
+                    self.end_y = int(curve_point[1])
+                    self.repeat = int(curve_point[2])
+                    self.slider_length = float(curve_point[3])
+                    self.end_hitsound = 0
 
     def check_validation(self):
         if self.slider_length > 0.0:
@@ -72,8 +72,6 @@ class Slider(HitObjects):
 
 
 class Spinner(HitObjects):
-    end_time = 0
-
     def __init__(self, s):
         HitObjects.__init__(self)
         self.x = int(s[0])
@@ -84,7 +82,7 @@ class Spinner(HitObjects):
         self.end_time = int(s[5])
 
 
-class HintObjectsTable():
+class HintObjectsTable:
     object_list = []
     time_table = []
 
@@ -106,6 +104,8 @@ class HintObjectsTable():
             tmp_slider.check_validation()
 
         else:
+            if s.find('\n') != -1:
+                s = s[:-1]
             split_list = s.split(',')
             if len(split_list) == 7:
                 tmp_spinner =Spinner(split_list)

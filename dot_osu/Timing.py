@@ -12,17 +12,15 @@ class Timing:
     @:param mode        (Boolean) whether or not Kiai Time effects are active.
     @:param inherited   (Boolean)  whether or not the Timing Point is an inherited Timing Point.
     """
-    offset = 0
-    mpb = 0.0
-    meter = 4
-    sample_type = 1
-    sample_set = 0
-    volume = 100
-    mode = False
-    inherited = False
-
     def __init__(self, timing_str):
-
+        self.offset = 0
+        self.mpb = 0
+        self.meter = 0
+        self.sample_type = 1
+        self.sample_set = 0
+        self.volume = 100
+        self.mode = False
+        self.inherited = False
         if timing_str[:-1] == '\n':
             timing_str = timing_str[:-1]
         timing_split = timing_str.split(',')
@@ -34,7 +32,8 @@ class Timing:
         self.sample_type = int(timing_split[3])
         self.sample_set = int(timing_split[4])
         self.volume = int(timing_split[5])
-        self.inherited = bool(timing_split[6])
+        # print(int(timing_split[6]) == 1)
+        self.inherited = True if int(timing_split[6]) == 1 else False
         self.mode = bool(timing_split[7])
 
     def inherited_type(self):
@@ -45,9 +44,9 @@ class Timing:
 
 
 class InheritedTiming(Timing):
-    slider_multiply = 1.0
 
     def __init__(self, timing_str):
+        self.slider_multiply = 1.0
         Timing.__init__(self, timing_str)
 
     def get_real_speed(self):
@@ -55,32 +54,24 @@ class InheritedTiming(Timing):
         self.slider_multiply *= (-100.0) / self.mpb
 
 
-class NotInheritedIiming(Timing):
-    def __init__(self, timing_str):
-        Timing.__init__(self, timing_str)
-
-
 class TimingTable:
-    timing_table = []
-    ni_time_table = []
-    i_time_table = []
-
     def __init__(self):
-        pass
+        self.timing_table = []
+        self.ni_time_table = []
+        self.i_time_table = []
 
     def __add__(self, timing_str):
-        timing_point = Timing(timing_str)
-        if timing_point.inherited_type():
-            timing_point.__class__ = InheritedTiming
+        timing_point = InheritedTiming(timing_str)
+        if not timing_point.inherited_type():
             timing_point.get_real_speed()
         else:
-            timing_point.__class__ = NotInheritedIiming
+            timing_point.__class__ = Timing
 
         self.timing_table.append(timing_point)
 
     def music_seperate(self):
         for i in range(0, len(self.timing_table)):
-            if self.timing_table[i].inherited_type:
+            if self.timing_table[i].inherited_type():
                 pass
             else:
                 self.ni_time_table.append(self.timing_table[i].get_offset())
@@ -91,5 +82,5 @@ class TimingTable:
 
     def slider_speed_amend(self):
         for i in self.timing_table:
-            if i.inherited_type():
+            if not i.inherited_type():
                 i.get_real_speed()

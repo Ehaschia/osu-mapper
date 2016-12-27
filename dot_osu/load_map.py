@@ -68,15 +68,15 @@ def timing_info(file_text, begin_row, end_row, dic):
 
     for i in range(begin_row, end_row):
         timing_table.__add__(file_text[i])
-    timing_table.slider_speed_amend()
     timing_table.music_seperate()
+    dic['TimingPoints'] = timing_table
 
 
 def object_info(file_text, begin_row, end_row, dic):
     obj_table = HintObjectsTable()
     for i in range(begin_row, end_row):
         obj_table.add_object(file_text[i])
-    dic['hitobjects'] = obj_table
+    dic['HitObjects'] = obj_table
 
 
 def text_to_dic(file_text):
@@ -139,6 +139,7 @@ def load_map(file_name):
         f.close()
 
     beatmap = text_to_dic(file_text)
+    return beatmap
 
 
 if __name__ == '__main__':
@@ -154,5 +155,9 @@ if __name__ == '__main__':
             if re.search('\.mp3', tmp_file):
                 music_list.append(tmp_file.replace('\\', '/'))
     # load a map
-    for i in map_list:
-        load_map(i)
+    beatmap_list = []
+    for i in range(0, len(map_list)):
+        beatmap_list.append(load_map(map_list[i]))
+        beatmap_list[i]["OsuFilePath"] = map_list[i]
+        for (k, v) in beatmap_list[i].items():
+            print "dict[%s]=" % k, v
