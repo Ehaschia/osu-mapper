@@ -12,6 +12,7 @@ class Timing:
     @:param mode        (Boolean) whether or not Kiai Time effects are active.
     @:param inherited   (Boolean)  whether or not the Timing Point is an inherited Timing Point.
     """
+
     def __init__(self, timing_str):
         self.offset = 0
         self.mpb = 0
@@ -44,7 +45,6 @@ class Timing:
 
 
 class InheritedTiming(Timing):
-
     def __init__(self, timing_str):
         self.slider_multiply = 1.0
         Timing.__init__(self, timing_str)
@@ -72,10 +72,9 @@ class TimingTable:
     def music_seperate(self):
         for i in range(0, len(self.timing_table)):
             if self.timing_table[i].inherited_type():
-                pass
+                self.i_time_table.append(i)
             else:
-                self.ni_time_table.append(self.timing_table[i].get_offset())
-            self.i_time_table.append(self.timing_table[i].get_offset())
+                self.ni_time_table.append(i)
 
     def get_a_timing(self, i):
         return self.timing_table[i]
@@ -84,3 +83,9 @@ class TimingTable:
         for i in self.timing_table:
             if not i.inherited_type():
                 i.get_real_speed()
+
+    def get_mpb_list(self):
+        bmp_list = []
+        for i in self.i_time_table:
+            bmp_list.append(self.timing_table[i].mpb)
+        return bmp_list

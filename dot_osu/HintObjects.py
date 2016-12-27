@@ -10,7 +10,6 @@ class HitObjects:
         self.obj_type = 1
         self.hit_sound = 0
 
-
     def get_offset(self):
         return self.offset
 
@@ -24,6 +23,11 @@ class Circle(HitObjects):
         self.obj_type = int(s[3])
         self.hit_sound = int(s[4])
 
+    def get_featrue(self):
+        res = [0.0 for i in range(10)]
+        res[0] = float(self.x/512.0)
+        res[1] = float(self.y/384.0)
+        res[5] = 1.0
 
 class Slider(HitObjects):
     def __init__(self, s):
@@ -49,7 +53,7 @@ class Slider(HitObjects):
                 if len(curve_point) == 2:
                     # is a curve point
                     self.origin_trace.append((int(curve_point[0]), int(curve_point[1])))
-                elif len(curve_point) == 5:
+                elif len(curve_point) >= 5:
                     # is a end part
                     self.end_x = int(curve_point[0])
                     self.end_y = int(curve_point[1])
@@ -108,7 +112,7 @@ class HintObjectsTable:
                 s = s[:-1]
             split_list = s.split(',')
             if len(split_list) == 7:
-                tmp_spinner =Spinner(split_list)
+                tmp_spinner = Spinner(split_list)
                 self.object_list.append(tmp_spinner)
                 self.time_table.append(tmp_spinner.get_offset())
             elif len(split_list) == 6:
