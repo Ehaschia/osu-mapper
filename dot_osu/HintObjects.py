@@ -9,9 +9,36 @@ class HitObjects:
         self.y = 0
         self.obj_type = 1
         self.hit_sound = 0
+        self.hit_type = ''
 
     def get_offset(self):
         return self.offset
+
+    def parse_hit_type(self, s):
+        return int(s.split(":")[0])
+
+    def parse_hit_sound(self, s):
+        self.hit_sound /= 2
+
+        # divide 2, 1 3 5 7 whistal; 2 3 6 7 finish; 4 5 6 7 clap;
+        if self.hit_sound == 0:
+            pass
+        elif self.hit_sound == 1:
+            s[11] = 1
+        elif self.hit_sound == 2:
+            s[12] = 1
+        elif self.hit_sound == 3:
+            s[11] = s[12] = 1
+        elif self.hit_sound == 4:
+            s[13] = 1
+        elif self.hit_sound == 5:
+            s[11] = s[13] = 1
+        elif self.hit_sound == 6:
+            s[12] = s[13] = 1
+        elif self.hit_sound == 7:
+            s[11] = s[12] = s[13]
+        else:
+            raise ValueError("Hit Sound parse ERROR!")
 
 
 class Circle(HitObjects):
@@ -23,11 +50,34 @@ class Circle(HitObjects):
         self.obj_type = int(s[3])
         self.hit_sound = int(s[4])
 
+    """
+    the meaning of every cell in feature:
+    res[0] : x of circle
+    res[1] : y of circle
+    res[2] : x of slider
+    res[3] : y of slider
+    res[4] : is null object?
+    res[5] : is circle object?
+    res[6] : is slider object?
+    res[7] : is spinner object?
+    res[8] : if is slider object ,is it connect with the last one?
+    res[9] : is it a begin of a stream?
+    res[10]: sound type -- noraml -1 soft 0 drum 1
+    res[11]: is whistel?
+    res[12]: is finish?
+    res[13]: is clap:
+    """
+
     def get_featrue(self):
-        res = [0.0 for i in range(10)]
-        res[0] = float(self.x/512.0)
-        res[1] = float(self.y/384.0)
+        res = [0.0 for i in range(13)]
+        res[0] = float(self.x / 512.0)
+        res[1] = float(self.y / 384.0)
         res[5] = 1.0
+        res[9] = 1 if self.obj_type - 4 == 1 else 0
+        res[10] = self.parse_hit_type(self.hit_type)
+        self.parse_hit_sound(res)
+        return res
+
 
 class Slider(HitObjects):
     def __init__(self, s):
@@ -75,7 +125,7 @@ class Slider(HitObjects):
             return False
 
 
-class Spinner(HitObjects):
+class Spinner(HitObjects)   :
     def __init__(self, s):
         HitObjects.__init__(self)
         self.x = int(s[0])
@@ -84,6 +134,15 @@ class Spinner(HitObjects):
         self.obj_type = int(s[3])
         self.hit_sound = int(s[4])
         self.end_time = int(s[5])
+        if not (self.obj_type == 8 or self.obj_type == 12):
+            print("object parse error!")
+
+    def get_featrue(self):
+        res = [0.0 for i in range(15)]
+        res[7] = 1.0
+        res[10] = self.parse_hit_type(self.hit_type)
+        self.parse_hit_sound(res)
+        return res
 
 
 class HintObjectsTable:
@@ -111,10 +170,12 @@ class HintObjectsTable:
             if s.find('\n') != -1:
                 s = s[:-1]
             split_list = s.split(',')
+            # it is a spinner
             if len(split_list) == 7:
                 tmp_spinner = Spinner(split_list)
                 self.object_list.append(tmp_spinner)
                 self.time_table.append(tmp_spinner.get_offset())
+            # it is a circle
             elif len(split_list) == 6:
                 tmp_circle = Circle(split_list)
                 self.object_list.append(tmp_circle)
