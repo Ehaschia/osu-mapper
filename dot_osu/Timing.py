@@ -89,3 +89,9 @@ class TimingTable:
         for i in self.i_time_table:
             bmp_list.append(self.timing_table[i].mpb)
         return bmp_list
+
+    def get_red_timing_list(self):
+        timing_list = []
+        for i in self.i_time_table:
+            timing_list.append(self.timing_table[i].offset)
+        return timing_list

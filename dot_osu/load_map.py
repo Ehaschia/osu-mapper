@@ -4,7 +4,7 @@ import re
 from HintObjects import HitObjects, HintObjectsTable
 from Timing import TimingTable
 import Timing
-
+import numpy as np
 
 class load_osu:
     def __init__(self):
@@ -154,9 +154,10 @@ def generator_music_info(beatmap_list):
     for ii in beatmap_list:
         tmp_sep = []
         tmp_sep.append(ii['SongFilePath'])
-        tmp_sep.append(int(ii['BeatDivisor']))
-        tmp_sep.append(ii['TimingPoints'].i_time_table)
-        tmp_sep.append(ii['TimingPoints'].get_mpb_list())
+        tmp_sep.append(float(ii['AudioLeadIn']))
+        tmp_sep.append(ii['TimingPoints'].get_red_timing_list())
+        tmp_list = list(np.array(ii['TimingPoints'].get_mpb_list()) / int(ii['BeatDivisor']))
+        tmp_sep.append(tmp_list)
         music_seperate_info.append(tmp_sep)
     return music_seperate_info
 
@@ -175,7 +176,7 @@ if __name__ == '__main__':
     # load a map
     beatmap_list = []
     map_paser = load_osu()
-    for i in range(0, len(map_list)):
+    for i in range(0, 2):
         tmp_parser = map_paser.load_map(map_list[i])
         if tmp_parser == {}:
             continue
@@ -186,3 +187,4 @@ if __name__ == '__main__':
             beatmap_list[length]['AudioFilename'] = beatmap_list[length]['AudioFilename'][1:]
         beatmap_list[length]["SongFilePath"] = tmp_sep[i] + "/" + beatmap_list[length]['AudioFilename']
     music_info = generator_music_info(beatmap_list)
+    print
