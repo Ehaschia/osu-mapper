@@ -146,11 +146,10 @@ class Spinner(HitObjects):
 
 
 class HintObjectsTable:
-    object_list = []
-    time_table = []
 
     def __init__(self):
-        pass
+        self.object_list = []
+        self.time_table = []
 
     def add_object(self, s):
         if s is None:

@@ -168,7 +168,7 @@ def generator_music_info(beatmap_list):
         tmp_sep = [ii['SongFilePath']]
         tmp_sep = generator_bmp_list(ii, tmp_sep)
         last_object = ii['HitObjects'].get_object(-1)
-        finish_time =  get_finished_time(last_object)
+        finish_time = float(get_finished_time(last_object))
         tmp_sep[1].append(finish_time)
         music_seperate_info.append(tmp_sep)
     return music_seperate_info
@@ -195,7 +195,7 @@ if __name__ == '__main__':
     # load a map
     beatmap_list = []
     map_paser = load_osu()
-    for i in range(0, len(map_list)):
+    for i in range(0, 3):
         tmp_parser = map_paser.load_map(map_list[i])
         if tmp_parser == {}:
             continue
