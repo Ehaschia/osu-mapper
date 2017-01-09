@@ -158,7 +158,7 @@ def generator_bmp_list(parsed_osu, tmp_sep):
 
 
 def get_finished_time(hit_object):
-    return hit_object.offset + 80000
+    return hit_object.offset + 8000
 
 
 
