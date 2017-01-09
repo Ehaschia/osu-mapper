@@ -49,9 +49,12 @@ class InheritedTiming(Timing):
         self.slider_multiply = 1.0
         Timing.__init__(self, timing_str)
 
-    def get_real_speed(self):
+    def cal_real_speed(self):
         # 1/slider_multiply * -100 = mbp
         self.slider_multiply *= (-100.0) / self.mpb
+
+    def get_speed(self):
+        return self.slider_multiply
 
 
 class TimingTable:
@@ -63,7 +66,7 @@ class TimingTable:
     def __add__(self, timing_str):
         timing_point = InheritedTiming(timing_str)
         if not timing_point.inherited_type():
-            timing_point.get_real_speed()
+            timing_point.cal_real_speed()
         else:
             timing_point.__class__ = Timing
 
@@ -95,3 +98,18 @@ class TimingTable:
         for i in self.i_time_table:
             timing_list.append(self.timing_table[i].offset)
         return timing_list
+
+    def get_timing_list(self):
+        timing_list = []
+        for i in self.timing_table:
+            timing_list.append(i.offset)
+        return timing_list
+
+    def get_speed_list(self, speed):
+        speed_list = []
+        for i in self.timing_table:
+            if i.inherited_type():
+                speed_list.append(speed)
+            else:
+                speed_list.append(i.get_speed())
+        return speed_list

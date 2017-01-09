@@ -1,10 +1,11 @@
 __author__ = "Ehaschia"
 import os
 import re
-from HintObjects import HitObjects, HintObjectsTable
+from HintObjects import HitObjects, HintObjectsTable, NoneObject
 from Timing import TimingTable
 import Timing
 import numpy as np
+from slidertransfer import SliderTransfer
 
 class load_osu:
     def __init__(self):
@@ -148,18 +149,32 @@ class load_osu:
         beatmap = self.text_to_dic(file_text)
         return beatmap
 
+def generator_bmp_list(parsed_osu, tmp_sep):
+    tmp_sep.append(parsed_osu['TimingPoints'].get_red_timing_list())
+    tmp_sep.append( list(np.array(parsed_osu['TimingPoints'].get_mpb_list()) / int(parsed_osu['BeatDivisor'])))
+    return tmp_sep
+
+def get_finished_time(hit_object, timing):
+    if hit_object.__class__ != 'Spinner':
+        return hit_object.offset + timing.mpb
+    else:
+        tmp_transfer = SliderTransfer(hit_object)
+        end_time = tmp_transfer.transfer(timing.get_speed())
 
 def generator_music_info(beatmap_list):
     music_seperate_info = []
     for ii in beatmap_list:
-        tmp_sep = []
-        tmp_sep.append(ii['SongFilePath'])
-        tmp_sep.append(float(ii['AudioLeadIn']))
-        tmp_sep.append(ii['TimingPoints'].get_red_timing_list())
-        tmp_list = list(np.array(ii['TimingPoints'].get_mpb_list()) / int(ii['BeatDivisor']))
-        tmp_sep.append(tmp_list)
+        tmp_sep = [ii['SongFilePath']]
+        tmp_sep = generator_bmp_list(ii, tmp_sep)
         music_seperate_info.append(tmp_sep)
     return music_seperate_info
+
+def generator_objects_lists(parsed_osu):
+    object = parsed_osu['HitObjects']
+    # the use of test
+    time_list = generator_bmp_list(parsed_osu, [])
+    none = NoneObject()
+
 
 
 if __name__ == '__main__':
@@ -180,11 +195,12 @@ if __name__ == '__main__':
         tmp_parser = map_paser.load_map(map_list[i])
         if tmp_parser == {}:
             continue
+
         beatmap_list.append(tmp_parser)
         length = len(beatmap_list) - 1
         beatmap_list[length]["OsuFilePath"] = map_list[i]
         if beatmap_list[length]['AudioFilename'][0] == ' ':
             beatmap_list[length]['AudioFilename'] = beatmap_list[length]['AudioFilename'][1:]
         beatmap_list[length]["SongFilePath"] = tmp_sep[i] + "/" + beatmap_list[length]['AudioFilename']
+
     music_info = generator_music_info(beatmap_list)
-    print

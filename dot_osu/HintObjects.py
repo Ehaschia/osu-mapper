@@ -125,7 +125,7 @@ class Slider(HitObjects):
             return False
 
 
-class Spinner(HitObjects)   :
+class Spinner(HitObjects):
     def __init__(self, s):
         HitObjects.__init__(self)
         self.x = int(s[0])
@@ -182,3 +182,13 @@ class HintObjectsTable:
                 self.time_table.append(tmp_circle.get_offset())
             else:
                 raise LookupError("the length of object is wrong!")
+
+
+class NoneObject:
+    def __init__(self):
+        pass
+
+    def get_featu0re(self):
+        res = [0 for i in range(13)]
+        res[4] = 1
+        return res
