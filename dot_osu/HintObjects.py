@@ -182,7 +182,8 @@ class HintObjectsTable:
                 self.time_table.append(tmp_circle.get_offset())
             else:
                 raise LookupError("the length of object is wrong!")
-
+    def get_object(self, i):
+        return self.object_list[i]
 
 class NoneObject:
     def __init__(self):

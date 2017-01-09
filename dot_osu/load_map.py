@@ -7,6 +7,7 @@ import Timing
 import numpy as np
 from slidertransfer import SliderTransfer
 
+
 class load_osu:
     def __init__(self):
         pass
@@ -65,9 +66,9 @@ class load_osu:
 
     def timing_info(self, file_text, begin_row, end_row, dic):
         timing_table = TimingTable()
-
+        global_slider_speeed = float(dic['SliderMultiplier'])
         for i in range(begin_row, end_row):
-            timing_table.__add__(file_text[i])
+            timing_table.__add__(file_text[i], global_slider_speeed)
         timing_table.music_seperate()
         dic['TimingPoints'] = timing_table
 
@@ -149,32 +150,35 @@ class load_osu:
         beatmap = self.text_to_dic(file_text)
         return beatmap
 
+
 def generator_bmp_list(parsed_osu, tmp_sep):
     tmp_sep.append(parsed_osu['TimingPoints'].get_red_timing_list())
-    tmp_sep.append( list(np.array(parsed_osu['TimingPoints'].get_mpb_list()) / int(parsed_osu['BeatDivisor'])))
+    tmp_sep.append(list(np.array(parsed_osu['TimingPoints'].get_mpb_list()) / int(parsed_osu['BeatDivisor'])))
     return tmp_sep
 
-def get_finished_time(hit_object, timing):
-    if hit_object.__class__ != 'Spinner':
-        return hit_object.offset + timing.mpb
-    else:
-        tmp_transfer = SliderTransfer(hit_object)
-        end_time = tmp_transfer.transfer(timing.get_speed())
+
+def get_finished_time(hit_object):
+    return hit_object.offset + 80000
+
+
 
 def generator_music_info(beatmap_list):
     music_seperate_info = []
     for ii in beatmap_list:
         tmp_sep = [ii['SongFilePath']]
         tmp_sep = generator_bmp_list(ii, tmp_sep)
+        last_object = ii['HitObjects'].get_object(-1)
+        finish_time =  get_finished_time(last_object)
+        tmp_sep[1].append(finish_time)
         music_seperate_info.append(tmp_sep)
     return music_seperate_info
+
 
 def generator_objects_lists(parsed_osu):
     object = parsed_osu['HitObjects']
     # the use of test
     time_list = generator_bmp_list(parsed_osu, [])
     none = NoneObject()
-
 
 
 if __name__ == '__main__':
@@ -191,7 +195,7 @@ if __name__ == '__main__':
     # load a map
     beatmap_list = []
     map_paser = load_osu()
-    for i in range(0, 2):
+    for i in range(0, len(map_list)):
         tmp_parser = map_paser.load_map(map_list[i])
         if tmp_parser == {}:
             continue

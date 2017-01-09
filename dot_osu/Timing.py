@@ -22,6 +22,7 @@ class Timing:
         self.volume = 100
         self.mode = False
         self.inherited = False
+        self.slider_multiply = 1.0
         if timing_str[:-1] == '\n':
             timing_str = timing_str[:-1]
         timing_split = timing_str.split(',')
@@ -43,12 +44,6 @@ class Timing:
     def get_offset(self):
         return self.offset
 
-
-class InheritedTiming(Timing):
-    def __init__(self, timing_str):
-        self.slider_multiply = 1.0
-        Timing.__init__(self, timing_str)
-
     def cal_real_speed(self):
         # 1/slider_multiply * -100 = mbp
         self.slider_multiply *= (-100.0) / self.mpb
@@ -57,18 +52,19 @@ class InheritedTiming(Timing):
         return self.slider_multiply
 
 
+
 class TimingTable:
     def __init__(self):
         self.timing_table = []
         self.ni_time_table = []
         self.i_time_table = []
 
-    def __add__(self, timing_str):
-        timing_point = InheritedTiming(timing_str)
+    def __add__(self, timing_str, slider_speed):
+        timing_point = Timing(timing_str)
         if not timing_point.inherited_type():
             timing_point.cal_real_speed()
         else:
-            timing_point.__class__ = Timing
+            timing_point.slider_multiply = slider_speed
 
         self.timing_table.append(timing_point)
 
