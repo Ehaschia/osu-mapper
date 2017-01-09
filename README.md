@@ -22,12 +22,16 @@ Use RNN-like model. State h_0 = some hyper-parameters in osu file and features o
 
 ### Music [Jiong]
 - Basic concepts
+  -  timbre 音色: 音色主要决定于声音频谱对人的刺激，但也决定于波形、声压、频谱的频率位置和频谱对人的时间性刺激
+  -  rhythem 节奏:
+  -  pitch information 音高:
 - Process(how?)
   - Feature: MFCC ([Tutorial][MFCC-tutorial])
     - A [survey](http://ieeexplore.ieee.org/document/5664796/)
   - Relative Package:
     - [python speech features](https://github.com/jameslyons/python_speech_features)
-    - [pydub](https://github.com/jiaaro/pydub)
+    - [librosa](https://github.com/librosa/librosa)
+    <del>- [pydub](https://github.com/jiaaro/pydub)</del>
 - Music model(for machine learning)
 
 
