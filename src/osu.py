@@ -90,7 +90,7 @@ class osu:
         # load a map
         self.beatmap_list = []
         map_paser = load_map.load_osu()
-        for i in range(0, 1):
+        for i in range(0, len(map_list)):
             tmp_parser = map_paser.load_map(map_list[i])
             if tmp_parser == {}:
                 continue

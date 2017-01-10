@@ -25,9 +25,9 @@ class SliderTransfer:
             length += math.sqrt((curve[i-1][0]-curve[i][0]) ** 2 + (curve[i-1][1] -curve[i][1])**2)
         return length
 
-    def transfer(self, speed):
+    def transfer(self, speed, beats):
         self.split_slider()
-        sample_point = int(self.length / 25.0/speed)
+        sample_point = int(self.length /(100.0/beats)/speed)
         if self.slider_object.slider_type == "B" or self.slider_object.slider_type == "L":
             points_list = []
             break_point = 0
@@ -50,7 +50,7 @@ class SliderTransfer:
                 # normalize
                 sample_count = 0
                 for i in range(0, len(length) - 1):
-                    length[i] = round(length[i]/length_sum*sample_point)
+                    length[i] = int(round(length[i]/length_sum*sample_point))
                     sample_count += length[i]
                 length[-1] = sample_point-sample_count
                 # calculate the bezier curve for every curve
@@ -92,6 +92,8 @@ class SliderTransfer:
             nTimes is the number of time steps, defaults to 1000
         :return:
         """
+        if nTimes == 1:
+            return [points[0]]
         if len(points) != 3:
             raise ValueError("the size of P slider is wrong!")
         #  calculate the center of circle
@@ -188,6 +190,8 @@ class SliderTransfer:
         polynomial_array = np.array([self.bernstein_poly(i, nPoints - 1, t) for i in range(0, nPoints)])
         xvals = np.dot(xPoints, polynomial_array)
         yvals = np.dot(yPoints, polynomial_array)
+        if isinstance(nTimes, float):
+            print "Error"
         res = list((xvals[i], yvals[i])for i in range(0, nTimes))[::-1]
         return res
 

@@ -138,8 +138,6 @@ class load_osu:
         try:
             for line in f:
                 if len(line) <= 2:
-                    if line != '\n':
-                        print(line)
                     continue
                 file_text.append(line)
         except Exception:
@@ -185,35 +183,37 @@ def generator_objects_lists(music_feature, beatmap_list):
     osu_feature = beatmap_list[0]
     timing_list = osu_feature['TimingPoints'].get_timing_list()
     object_list = osu_feature["HitObjects"].get_objects_list()
+    beats = int(osu_feature['BeatDivisor'])
     none = NoneObject()
     object_spans = [none.get_feature() for i in range(0, len(time_spans))]
     object_index = 0
-    slider_point_list = []
     slider_index = 0
     spinner_index = 0
+    timing_index = 0
     for i in range(1, len(time_spans)):
+        if object_index >= len(object_list):
+            break
         if i < slider_index:
             pass
         if i < spinner_index:
             pass
         if abs(object_list[object_index].get_offset() - time_spans[i-1][0]) > abs(object_list[object_index].get_offset() - time_spans[i][0]):
-                print object_list[object_index].get_offset()
-                print "\n"
-                print time_spans[i-1][0]
+            pass
         else:
             ob = object_list[object_index]
             object_index += 1
             if ob.__class__.__name__ == 'Circle':
                 object_spans[i-1] = ob.get_feature()
             elif ob.__class__.__name__ == 'Slider':
-                for j in timing_list:
-                    if j.get_offset() - ob.get_offset() >= 0:
-                        speed = j.get_speed()
+                for j in range(timing_index, len(timing_list)):
+                    if timing_list[j].get_offset() - ob.get_offset() > 0:
+                        speed = timing_list[j-1].get_speed()
+                        timing_index = j-1
                         break
                 st = SliderTransfer(ob)
-                slider_point_list = st.transfer(speed)
+                slider_point_list = st.transfer(speed, beats)
                 slider_index = i - 1 + len(slider_point_list)
-                for k in range(i-1, slider_index-1):
+                for k in range(i-1, slider_index):
                     if k == i-1:
                         object_spans[k] = ob.get_feature(slider_point_list[k-i+1], 1.0)
                     else:

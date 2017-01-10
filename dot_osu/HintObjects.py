@@ -18,7 +18,8 @@ class HitObjects:
         return int(s.split(":")[0])
 
     def parse_hit_sound(self, s):
-        self.hit_sound /= 2
+        if self.hit_sound > 7:
+            self.hit_sound /= 2
 
         # divide 2, 1 3 5 7 whistal; 2 3 6 7 finish; 4 5 6 7 clap;
         if self.hit_sound == 0:
@@ -49,6 +50,7 @@ class Circle(HitObjects):
         self.offset = int(s[2])
         self.obj_type = int(s[3])
         self.hit_sound = int(s[4])
+        self.hit_type = s[-1]
 
     """
     the meaning of every cell in feature:
@@ -71,13 +73,13 @@ class Circle(HitObjects):
     res[16]: end hidSound is clap?
     """
 
-    def get_featrue(self):
+    def get_feature(self):
         res = [0.0 for i in range(16)]
         res[0] = float(self.x / 512.0)
         res[1] = float(self.y / 384.0)
         res[5] = 1.0
         res[9] = 1 if self.obj_type - 4 == 1 else 0
-        res[10] = self.parse_hit_type(self.hit_type)
+        res[10] = 0
         self.parse_hit_sound(res)
         return res
 
@@ -112,6 +114,7 @@ class Slider(HitObjects):
                     self.repeat = int(curve_point[2])
                     self.slider_length = float(curve_point[3])
                     self.end_hitsound = int(curve_point[4])
+                    break
                 elif len(curve_point) == 4:
                     # in version 12 or small than 12 there are 4 elements in the end part
                     self.end_x = int(curve_point[0])
@@ -119,6 +122,7 @@ class Slider(HitObjects):
                     self.repeat = int(curve_point[2])
                     self.slider_length = float(curve_point[3])
                     self.end_hitsound = 0
+                    break
 
     def check_validation(self):
         if self.slider_length > 0.0:
