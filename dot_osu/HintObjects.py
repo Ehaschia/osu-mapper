@@ -175,10 +175,10 @@ class Spinner(HitObjects):
         if not (self.obj_type == 8 or self.obj_type == 12):
             print("object parse error!")
 
-    def get_featrue(self):
+    def get_feature(self):
         res = [0.0 for i in range(15)]
         res[7] = 1.0
-        res[10] = self.parse_hit_type(self.hit_type)
+        res[10] = 0.0
         self.parse_hit_sound(res)
         return res
 

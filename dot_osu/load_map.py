@@ -159,7 +159,6 @@ def get_finished_time(hit_object):
     return hit_object.offset + 8000
 
 
-
 def generator_music_info(beatmap_list):
     music_seperate_info = []
     for ii in beatmap_list:
@@ -176,11 +175,11 @@ def generator_music_info(beatmap_list):
 def generator_objects_lists(music_feature, beatmap_list):
     object_path, (feat_spans, time_spans) = music_feature
     # the use of test
-    # for i in beatmap_list:
-    #     if i['OsuFilePath'] == object_path:
-    #         osu_feature = i
-    #         break
-    osu_feature = beatmap_list[0]
+    for i in beatmap_list:
+        if i['OsuFilePath'] == object_path:
+            osu_feature = i
+            break
+    # osu_feature = beatmap_list[0]
     timing_list = osu_feature['TimingPoints'].get_timing_list()
     object_list = osu_feature["HitObjects"].get_objects_list()
     beats = int(osu_feature['BeatDivisor'])
@@ -197,39 +196,45 @@ def generator_objects_lists(music_feature, beatmap_list):
             pass
         if i < spinner_index:
             pass
-        if abs(object_list[object_index].get_offset() - time_spans[i-1][0]) > abs(object_list[object_index].get_offset() - time_spans[i][0]):
+        if abs(object_list[object_index].get_offset() - time_spans[i - 1][0]) > abs(
+                        object_list[object_index].get_offset() - time_spans[i][0]):
             pass
         else:
             ob = object_list[object_index]
             object_index += 1
             if ob.__class__.__name__ == 'Circle':
-                object_spans[i-1] = ob.get_feature()
+                object_spans[i - 1] = ob.get_feature()
             elif ob.__class__.__name__ == 'Slider':
                 for j in range(timing_index, len(timing_list)):
                     if timing_list[j].get_offset() - ob.get_offset() > 0:
-                        speed = timing_list[j-1].get_speed()
-                        timing_index = j-1
+                        speed = timing_list[j - 1].get_speed()
+                        timing_index = j - 1
                         break
                 st = SliderTransfer(ob)
                 slider_point_list = st.transfer(speed, beats)
                 slider_index = i - 1 + len(slider_point_list)
-                for k in range(i-1, slider_index):
-                    if k == i-1:
-                        object_spans[k] = ob.get_feature(slider_point_list[k-i+1], 1.0)
+                for k in range(i - 1, slider_index):
+                    if k == i - 1:
+                        object_spans[k] = ob.get_feature(slider_point_list[k - i + 1], 1.0)
                     else:
-                        object_spans[k] = ob.get_feature(slider_point_list[k-i+1], 0.0)
+                        try:
+                            object_spans[k] = ob.get_feature(slider_point_list[k - i + 1], 0.0)
+                        except IndexError as e:
+                            print(e)
+
             elif ob.__class__.__name__ == "Spinner":
                 end_time = ob.get_end_time()
-                begin_time = time_spans[i-1][0]
-                for j in range(i-1, len(time_spans)):
+                begin_time = time_spans[i - 1][0]
+                for j in range(i - 1, len(time_spans)):
                     if abs(time_spans[j][1] - begin_time - end_time) < 3.0:
                         spinner_index = j
                         break
-                for k in range(i-1, spinner_index):
+                for k in range(i - 1, spinner_index):
                     object_spans[k] = ob.get_feature()
             else:
                 raise ValueError("Object type Error")
     return object_spans
+
 
 if __name__ == '__main__':
     # find all map and songs
