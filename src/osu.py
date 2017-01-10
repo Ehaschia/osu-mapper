@@ -77,7 +77,7 @@ class osu:
 
     def get_music_info(self):
         # find all map and songs
-        file_dir = "xxx"
+        file_dir = "/home/ehaschia/songs/"
         map_list = []
         tmp_sep = []
         for root, dirs, files in os.walk(file_dir):

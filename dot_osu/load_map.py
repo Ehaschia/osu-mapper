@@ -166,15 +166,16 @@ def generator_music_info(beatmap_list):
     music_seperate_info = []
     for ii in beatmap_list:
         tmp_sep = [ii['SongFilePath']]
+        tmp_sep.append(ii['OsuFilePath'])
         tmp_sep = generator_bmp_list(ii, tmp_sep)
         last_object = ii['HitObjects'].get_object(-1)
         finish_time = float(get_finished_time(last_object))
-        tmp_sep[1].append(finish_time)
+        tmp_sep[2].append(finish_time)
         music_seperate_info.append(tmp_sep)
     return music_seperate_info
 
 
-def generator_objects_lists(parsed_osu):
+def generator_objects_lists(parsed_osu, ):
     object = parsed_osu['HitObjects']
     # the use of test
     time_list = generator_bmp_list(parsed_osu, [])
