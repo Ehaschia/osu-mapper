@@ -8,10 +8,11 @@ class SliderTransfer:
         self.slider_object = slider
         self.points = []
         self.length = self.slider_object.slider_length/self.slider_object.repeat
+
     def split_slider(self):
         start_point = (self.slider_object.x, self.slider_object.y)
         self.points.append(start_point)
-        for i in self.slider_object.origin_traces:
+        for i in self.slider_object.origin_trace:
             self.points.append(i)
         end_points = (self.slider_object.end_x, self.slider_object.end_y)
         self.points.append(end_points)
@@ -26,7 +27,7 @@ class SliderTransfer:
 
     def transfer(self, speed):
         self.split_slider()
-        sample_point = int(self.length / speed)
+        sample_point = int(self.length / 25.0/speed)
         if self.slider_object.slider_type == "B" or self.slider_object.slider_type == "L":
             points_list = []
             break_point = 0
@@ -37,7 +38,7 @@ class SliderTransfer:
                     break_point = i-1
             # no split, a smiple split
             if break_point == 0:
-                curve = self.bezier_curve(self.points, nTimes=sample_point)
+                curve = self.bezier_curve(self.points, nTimes=sample_point + 1)
             else:
                 curve = []
                 length = []
@@ -54,14 +55,14 @@ class SliderTransfer:
                 length[-1] = sample_point-sample_count
                 # calculate the bezier curve for every curve
                 for i in range(0, len(points_list)):
-                    tmp_curve = self.bezier_curve(points_list[i], nTimes=length[i])
+                    tmp_curve = self.bezier_curve(points_list[i], nTimes=length[i] + 1)
                     if i == 0:
                         curve = tmp_curve
                     else:
                         curve.extend(tmp_curve[1:-1])
 
         elif self.slider_object.slider_type == "C" or self.slider_object.slider_type == "P":
-            curve = self.difference_curve(points, nTimes=sample_point)
+            curve = self.difference_curve(self.points, nTimes=sample_point + 1)
         real_curve = []
         for i in range(0, self.slider_object.repeat):
             if i % 2 == 0:
@@ -71,7 +72,7 @@ class SliderTransfer:
         return real_curve
 
     def calculate_angle2(self, angle):
-        if angle < np.pi:
+        if angle < -1.0*np.pi:
             return angle + np.pi * 2.0
         if angle > np.pi:
             return angle - np.pi * 2.0
@@ -94,8 +95,8 @@ class SliderTransfer:
         if len(points) != 3:
             raise ValueError("the size of P slider is wrong!")
         #  calculate the center of circle
-        xpoints = [float(points[i][0]for i in range(len(points)))]
-        ypoints = [float(points[i][0]for i in range(len(points)))]
+        xpoints = [float(points[i][0])for i in range(len(points))]
+        ypoints = [float(points[i][1])for i in range(len(points))]
         a = 2*(xpoints[1]-xpoints[0])
         b = 2*(ypoints[1]-ypoints[0])
         c = xpoints[1]**2 + ypoints[1]**2 -xpoints[0]**2 -ypoints[0]**2
@@ -123,25 +124,25 @@ class SliderTransfer:
         if good_arc:
             tmp_angle = angle0
             if angle0 > angle2:
-                for i in range(0, nTimes+1):
+                for i in range(0, nTimes):
                     angle_list.append(tmp_angle)
                     tmp_angle += delta
                     tmp_angle = self.calculate_angle2(tmp_angle)
             else:
-                for i in range(0, nTimes + 1):
+                for i in range(0, nTimes):
                     angle_list.append(tmp_angle)
                     tmp_angle -= delta
                     tmp_angle = self.calculate_angle2(tmp_angle)
         else:
             tmp_angle = angle0
             if angle0 > angle2:
-                for i in range(0, nTimes+1):
+                for i in range(0, nTimes):
                     angle_list.append(tmp_angle)
                     tmp_angle -= delta
                     tmp_angle = self.calculate_angle2(tmp_angle)
             else:
-                for i in range(0, nTimes+1):
-                    angle_list.append(tmp_angle);
+                for i in range(0, nTimes):
+                    angle_list.append(tmp_angle)
                     tmp_angle += delta
                     tmp_angle = self.calculate_angle2(tmp_angle)
         points_list = []
@@ -155,7 +156,7 @@ class SliderTransfer:
         return x, y
 
     def calculate_angle(self, x, y, ccx, ccy, r):
-        return np.arctan2((x-ccx), (y-ccy))
+        return np.arctan2((y-ccy), (x-ccx))
 
     def bernstein_poly(self, i, n, t):
         """

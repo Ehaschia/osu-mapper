@@ -9,6 +9,7 @@ import re
 
 
 class osu:
+    beatmap_list = []
     def __init__(self, filename):
         self.filename = filename
 
@@ -21,7 +22,7 @@ class osu:
             yield info[0], self.interval_features_single_song(info)
 
     def interval_features_single_song(self, music_info, K=5):  # return an array of vectors of a single song.
-        path, start_time_points, ms_per_beat = music_info
+        path, osu_path ,start_time_points, ms_per_beat = music_info
 
         y, sr = librosa.load(path)
 
@@ -39,8 +40,8 @@ class osu:
         while start < end_time:
             end = start + ms_per_beat[i]
             if start < intervals[i + 1]:
-                beat_start_index = math.floor(start * sample_per_ms)
-                beat_end_index = math.ceil(end * sample_per_ms)
+                beat_start_index = int(math.floor(start * sample_per_ms))
+                beat_end_index = int(math.ceil(end * sample_per_ms))
 
                 feat = python_speech_features.mfcc(y[beat_start_index:beat_end_index], samplerate=sr,
                                                    winstep=win_step / 1000.)
@@ -58,8 +59,8 @@ class osu:
                         i_start = start
                         i_end = end + (K - n_frames) * 10
 
-                    beat_start_index = math.floor(i_start * sample_per_ms)
-                    beat_end_index = math.ceil(i_end * sample_per_ms)
+                    beat_start_index = int(math.floor(i_start * sample_per_ms))
+                    beat_end_index = int(math.ceil(i_end * sample_per_ms))
                     feat = python_speech_features.mfcc(y[beat_start_index:beat_end_index], samplerate=sr,
                                                        winstep=win_step / 1000.)
 
@@ -87,24 +88,28 @@ class osu:
                     tmp_sep.append(os.path.dirname(tmp_file))
                     map_list.append(tmp_file.replace('\\', '/'))
         # load a map
-        beatmap_list = []
+        self.beatmap_list = []
         map_paser = load_map.load_osu()
-        for i in range(0, len(map_list)):
+        for i in range(0, 1):
             tmp_parser = map_paser.load_map(map_list[i])
             if tmp_parser == {}:
                 continue
 
-            beatmap_list.append(tmp_parser)
-            length = len(beatmap_list) - 1
-            beatmap_list[length]["OsuFilePath"] = map_list[i]
-            if beatmap_list[length]['AudioFilename'][0] == ' ':
-                beatmap_list[length]['AudioFilename'] = beatmap_list[length]['AudioFilename'][1:]
-            beatmap_list[length]["SongFilePath"] = tmp_sep[i] + "/" + beatmap_list[length]['AudioFilename'].strip()
+            self.beatmap_list.append(tmp_parser)
+            length = len(self.beatmap_list) - 1
+            self.beatmap_list[length]["OsuFilePath"] = map_list[i]
+            if self.beatmap_list[length]['AudioFilename'][0] == ' ':
+                self.beatmap_list[length]['AudioFilename'] = self.beatmap_list[length]['AudioFilename'][1:]
+            self.beatmap_list[length]["SongFilePath"] = tmp_sep[i] + "/" + self.beatmap_list[length]['AudioFilename'].strip()
 
-        music_info = load_map.generator_music_info(beatmap_list)
+
+        music_info = load_map.generator_music_info(self.beatmap_list)
         return music_info
 
+    def get_beatmap_list(self):
+        return self.beatmap_list
 
 if __name__ == '__main__':
-    for x in osu("test").interval_features():
-        print x
+    oo = osu('test')
+    for x in oo.interval_features():
+        load_map.generator_objects_lists(x, oo.get_beatmap_list())

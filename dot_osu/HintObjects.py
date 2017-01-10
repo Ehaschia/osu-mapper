@@ -1,6 +1,6 @@
 __author__ = "Ehaschia"
 import re
-
+from slidertransfer import SliderTransfer
 
 class HitObjects:
     def __init__(self):
@@ -60,16 +60,19 @@ class Circle(HitObjects):
     res[5] : is circle object?
     res[6] : is slider object?
     res[7] : is spinner object?
-    res[8] : if is slider object ,is it connect with the last one?
+    res[8] : if it's a slider object ,is it connect with the last one?
     res[9] : is it a begin of a stream?
     res[10]: sound type -- noraml -1 soft 0 drum 1
     res[11]: is whistel?
     res[12]: is finish?
     res[13]: is clap:
+    res[14]: end hitSound is whistel?
+    res[15]: end hitSound is finish?
+    res[16]: end hidSound is clap?
     """
 
     def get_featrue(self):
-        res = [0.0 for i in range(13)]
+        res = [0.0 for i in range(16)]
         res[0] = float(self.x / 512.0)
         res[1] = float(self.y / 384.0)
         res[5] = 1.0
@@ -81,8 +84,7 @@ class Circle(HitObjects):
 
 class Slider(HitObjects):
     def __init__(self, s):
-        if s.find('\n') != -1:
-            s = s[:-1]
+        s = s.strip()
         HitObjects.__init__(self)
         str_split = s.split('|')
         self.origin_trace = []
@@ -103,7 +105,7 @@ class Slider(HitObjects):
                 if len(curve_point) == 2:
                     # is a curve point
                     self.origin_trace.append((int(curve_point[0]), int(curve_point[1])))
-                elif len(curve_point) >= 5:
+                elif len(curve_point) == 5:
                     # is a end part
                     self.end_x = int(curve_point[0])
                     self.end_y = int(curve_point[1])
@@ -125,6 +127,38 @@ class Slider(HitObjects):
             return False
 
 
+    def parse_end_hit_sound(self, s):
+        self.hit_sound /= 2
+
+        # divide 2, 1 3 5 7 whistal; 2 3 6 7 finish; 4 5 6 7 clap;
+        if self.hit_sound == 0:
+            pass
+        elif self.hit_sound == 1:
+            s[14] = 1
+        elif self.hit_sound == 2:
+            s[15] = 1
+        elif self.hit_sound == 3:
+            s[14] = s[15] = 1
+        elif self.hit_sound == 4:
+            s[16] = 1
+        elif self.hit_sound == 5:
+            s[14] = s[16] = 1
+        elif self.hit_sound == 6:
+            s[15] = s[16] = 1
+        elif self.hit_sound == 7:
+            s[14] = s[15] = s[16]
+        else:
+            raise ValueError("Hit Sound parse ERROR!")
+    def get_feature(self, points, begin):
+        res = [0.0 for i in range(16)]
+        res[2] = points[0]/512.0
+        res[3] = points[1]/384.0
+        res[6] = 1.0
+        self.parse_hit_sound(res)
+        self.parse_end_hit_sound(res)
+        res[9] = begin
+        return res
+
 class Spinner(HitObjects):
     def __init__(self, s):
         HitObjects.__init__(self)
@@ -144,6 +178,8 @@ class Spinner(HitObjects):
         self.parse_hit_sound(res)
         return res
 
+    def get_end_time(self):
+        return self.end_time
 
 class HintObjectsTable:
 
@@ -183,12 +219,13 @@ class HintObjectsTable:
                 raise LookupError("the length of object is wrong!")
     def get_object(self, i):
         return self.object_list[i]
-
+    def get_objects_list(self):
+        return self.object_list
 class NoneObject:
     def __init__(self):
         pass
 
-    def get_featu0re(self):
+    def get_feature(self):
         res = [0 for i in range(13)]
         res[4] = 1
         return res

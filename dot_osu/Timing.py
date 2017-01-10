@@ -96,10 +96,7 @@ class TimingTable:
         return timing_list
 
     def get_timing_list(self):
-        timing_list = []
-        for i in self.timing_table:
-            timing_list.append(i.offset)
-        return timing_list
+        return self.timing_table
 
     def get_speed_list(self, speed):
         speed_list = []
