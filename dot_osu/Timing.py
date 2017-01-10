@@ -13,7 +13,7 @@ class Timing:
     @:param inherited   (Boolean)  whether or not the Timing Point is an inherited Timing Point.
     """
 
-    def __init__(self, timing_str):
+    def __init__(self, timing_str, speed):
         self.offset = 0
         self.mpb = 0
         self.meter = 0
@@ -22,7 +22,7 @@ class Timing:
         self.volume = 100
         self.mode = False
         self.inherited = False
-        self.slider_multiply = 1.0
+        self.slider_multiply = speed
         if timing_str[:-1] == '\n':
             timing_str = timing_str[:-1]
         timing_split = timing_str.split(',')
@@ -60,7 +60,7 @@ class TimingTable:
         self.i_time_table = []
 
     def __add__(self, timing_str, slider_speed):
-        timing_point = Timing(timing_str)
+        timing_point = Timing(timing_str, slider_speed)
         if not timing_point.inherited_type():
             timing_point.cal_real_speed()
         else:
