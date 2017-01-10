@@ -62,7 +62,7 @@ class osu:
                                                        winstep=win_step / 1000.)
 
                 time_spans.append((start, end))
-                feat_spans.append(feat)
+                feat_spans.append(feat.reshape(-1))
                 start = end
             else:
                 start = intervals[i + 1]
@@ -83,6 +83,7 @@ class osu:
                 if os.path.splitext(tmp_file)[1] == '.osu':
                     tmp_sep.append(os.path.dirname(tmp_file))
                     map_list.append(tmp_file.replace('\\', '/'))
+
         # load a map
         self.beatmap_list = []
         map_paser = load_map.load_osu()
@@ -106,5 +107,44 @@ class osu:
         return self.beatmap_list
 
 
+def extract_data_of_map(map_path):
+    parser = load_map.load_osu()
+    parse = parser.load_map(map_path)
+
+    if parse == {}:
+        return None
+
+    parse['OsuFilePath'] = map_path
+    parse['SongFilePath'] = os.path.join(os.path.dirname(map_path), parse['AudioFilename'].strip())
+
+    info = load_map.generator_music_info([parse])[0]
+
+    feature_extractor = osu()
+    feat_spans, time_spans = feature_extractor.interval_features_single_song(info)
+    hit_objects = load_map.generator_objects_lists((info[1], (feat_spans, time_spans)), [parse])
+
+    assert len(feat_spans) == len(hit_objects)
+    return hit_objects, [list(f) for f in feat_spans]
+
+
 if __name__ == '__main__':
-    pass
+    package_path = "/Users/Void/VoidZone/Code_Bin/PycharmProjects/osu-mapper-data-process/songs"
+
+    for root, dirs, files in os.walk(package_path):
+        for file in files:
+            abs_path = os.path.join(root, file)
+            if os.path.splitext(abs_path)[1] == '.osu':
+                print(abs_path)
+
+                map_path = abs_path
+                try:
+                    data = extract_data_of_map(map_path)
+                except Exception as e:
+                    print(abs_path)
+                    print(e.message)
+                    continue
+                else:
+                    import json
+
+                    if data:
+                        json.dump(data, open(os.path.splitext(file)[0] + ".json", 'w'))

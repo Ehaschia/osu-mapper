@@ -84,7 +84,7 @@ class load_osu:
         line_cnt = len(file_text)
         # get the osu file format
         dic['format'] = int(re.search('\d+', file_text[row]).group(0))
-        if dic['format'] < 10:
+        if dic['format'] < 12:
             return {}
         row += 1
         print "file format is v" + str(dic['format'])
@@ -217,16 +217,13 @@ def generator_objects_lists(music_feature, beatmap_list):
                     if k == i - 1:
                         object_spans[k] = ob.get_feature(slider_point_list[k - i + 1], 1.0)
                     else:
-                        try:
-                            object_spans[k] = ob.get_feature(slider_point_list[k - i + 1], 0.0)
-                        except IndexError as e:
-                            print(e)
+                        object_spans[k] = ob.get_feature(slider_point_list[k - i + 1], 0.0)
 
             elif ob.__class__.__name__ == "Spinner":
                 end_time = ob.get_end_time()
                 begin_time = time_spans[i - 1][0]
                 for j in range(i - 1, len(time_spans)):
-                    if abs(time_spans[j][1] - begin_time - end_time) < 3.0:
+                    if abs(time_spans[j][1] - end_time) < 3.0:
                         spinner_index = j
                         break
                 for k in range(i - 1, spinner_index):
