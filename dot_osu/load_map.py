@@ -175,7 +175,7 @@ def generator_music_info(beatmap_list):
     return music_seperate_info
 
 
-def generator_objects_lists(parsed_osu, ):
+def generator_objects_lists():
     object = parsed_osu['HitObjects']
     # the use of test
     time_list = generator_bmp_list(parsed_osu, [])
