@@ -124,7 +124,7 @@ def extract_data_of_map(map_path):
     hit_objects = load_map.generator_objects_lists((info[1], (feat_spans, time_spans)), [parse])
 
     assert len(feat_spans) == len(hit_objects)
-    return hit_objects, [list(f) for f in feat_spans]
+    return os.path.basename(map_path), hit_objects, [list(f) for f in feat_spans]
 
 
 if __name__ == '__main__':
@@ -140,7 +140,6 @@ if __name__ == '__main__':
                 try:
                     data = extract_data_of_map(map_path)
                 except Exception as e:
-                    print(abs_path)
                     print(e.message)
                     continue
                 else:
